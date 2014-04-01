@@ -3,8 +3,14 @@ module.exports = function(pbDir) {
 };
 
 var PhoneBook = function(pbDir) {
+  // TODO do I need to specify this.XXXX with everything like this?
   this.fs = require('fs');
+  this.baseDir = './phonebooks';
   this.pbDir = pbDir;
+  if (!this.fs.existsSync(this.baseDir))
+      this.fs.mkdirSync(this.baseDir);
+  if (!this.fs.existsSync(this.baseDir + '/' + this.pbDir))
+      this.fs.mkdirSync(this.baseDir + '/' + this.pbDir);
 };
 
 PhoneBook.prototype.strToCleanArray = function(str) {
@@ -26,32 +32,29 @@ PhoneBook.prototype.mkDirRecursive = function(dirArray, accArray, f) {
   var that = this;
   var lastDir = dirArray.shift();
   accArray.push(lastDir);
-  var dirName = this.pbDir + '/' + accArray.join('/');
-  console.log(dirName);
+  var dirName = this.baseDir + '/' + this.pbDir + '/' + accArray.join('/');
   this.fs.mkdir(dirName, function(err) {
-    if (dirArray.length === 0) {
-      f(accArray);
-    }
+    // If all subdirs have been created, call the callback to add the file with
+    // the phone number
+    if (dirArray.length === 0) f(accArray);
     else
+      // TODO how best to specify the receiver here?
+      // Why do I need to specify the receiver?
+      // i.e. why can't I just say mkDirRecursive?
       that.mkDirRecursive(dirArray, accArray, f);
   });
 };
 
 PhoneBook.prototype.findNumber = function(name) {
-  var dirString = this.pbDir + '/' + this.strToDir(name);
-  console.log('[findNumber] ' + dirString);
-  var num = this.fs.readdir(dirString, function(err, files) {
-    for (var i = 0; i < files.length; i++)
-      console.log('[findNumber] [readdir]' + files[i]);
-    if (err) {
+  var dirString = this.baseDir + '/' + this.pbDir + '/' + this.strToDir(name);
+  this.fs.readdir(dirString, function(err, files) {
+    if (!files) {
+      console.log('Name ' + name + ' not found in phonebook!');
       return null;
     }
-    else {
-      // Just one phone number per name:
-      return files[0];
-    }
+    else if (files.length > 0)
+      console.log(files[0]);
   });
-  return num;
 };
 
 PhoneBook.prototype.addNumber = function(name, number) {
@@ -59,13 +62,13 @@ PhoneBook.prototype.addNumber = function(name, number) {
   if (this.findNumber(name)) {
     return null;
   }
-  var lettersArray = this.strToCleanArray(name);
+  var lettersArray = [this.baseDir, this.pbDir].concat(this.strToCleanArray(name));
   this.mkDirRecursive(lettersArray, [], function(dirArray) {
-    var dir = that.pbDir + dirArray.join('/');
+    var dir = that.baseDir + '/' + that.pbDir + '/' + dirArray.join('/');
     var fname = dir + '/' + number;
     that.fs.writeFile(fname, '', function(err) {
       if (err) throw err;
-      console.log('[PhoneBook.addNumber] ' + name + ' added with number ' + number);
+      console.log(name + ' added with number ' + number);
     });
   });
 };
