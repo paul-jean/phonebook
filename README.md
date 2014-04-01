@@ -38,3 +38,30 @@ var fname = pb.findNumber('foo bar');
 123-456-7890
 ```
 
+Add another name with the same first name of "foo" but different last name "woo":
+
+```javascript
+var fname = pb.addNumber('foo woo', '098-765-4321');
+```
+
+There is now a second number in the directory tree under last name "woo":
+
+```bash
+[rule146@rule146: phonebook]$ node tests/test-add-2.js
+Name foo woo not found in phonebook!
+foo woo added with number 098-765-4321
+[rule146@rule146: phonebook]$ tree phonebooks
+phonebooks
+└── pb1
+    └── f
+        └── o
+            └── o
+                ├── b
+                │   └── a
+                │       └── r
+                │           └── 123-456-7890
+                └── w
+                    └── o
+                        └── o
+                            └── 098-765-4321
+```
