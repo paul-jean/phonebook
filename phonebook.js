@@ -2,15 +2,17 @@ module.exports = function(pbDir) {
   return new PhoneBook(pbDir);
 };
 
+var fs = require('fs');
+
 var PhoneBook = function(pbDir) {
   // TODO do I need to specify this.XXXX with everything like this?
-  this.fs = require('fs');
+  // TODO don't need to have fs as part of PhoneBook state
   this.baseDir = './phonebooks';
   this.pbDir = pbDir;
-  if (!this.fs.existsSync(this.baseDir))
-      this.fs.mkdirSync(this.baseDir);
-  if (!this.fs.existsSync(this.baseDir + '/' + this.pbDir))
-      this.fs.mkdirSync(this.baseDir + '/' + this.pbDir);
+  if (!fs.existsSync(this.baseDir))
+      fs.mkdirSync(this.baseDir);
+  if (!fs.existsSync(this.baseDir + '/' + this.pbDir))
+      fs.mkdirSync(this.baseDir + '/' + this.pbDir);
 };
 
 PhoneBook.prototype.strToCleanArray = function(str) {
@@ -27,13 +29,15 @@ PhoneBook.prototype.strToDir = function(str) {
   return letters.join('/');
 };
 
+// TODO empty folder for separator between first and last name
+
 
 PhoneBook.prototype.mkDirRecursive = function(dirArray, accArray, f) {
   var that = this;
   var lastDir = dirArray.shift();
   accArray.push(lastDir);
-  var dirName = this.baseDir + '/' + this.pbDir + '/' + accArray.join('/');
-  this.fs.mkdir(dirName, function(err) {
+  var dirName = accArray.join('/');
+  fs.mkdir(dirName, function(err) {
     // If all subdirs have been created, call the callback to add the file with
     // the phone number
     if (dirArray.length === 0) f(accArray);
@@ -47,7 +51,7 @@ PhoneBook.prototype.mkDirRecursive = function(dirArray, accArray, f) {
 
 PhoneBook.prototype.findNumber = function(name) {
   var dirString = this.baseDir + '/' + this.pbDir + '/' + this.strToDir(name);
-  this.fs.readdir(dirString, function(err, files) {
+  fs.readdir(dirString, function(err, files) {
     if (!files) {
       console.log('Name ' + name + ' not found in phonebook!');
       return null;
@@ -64,9 +68,9 @@ PhoneBook.prototype.addNumber = function(name, number) {
   }
   var lettersArray = [this.baseDir, this.pbDir].concat(this.strToCleanArray(name));
   this.mkDirRecursive(lettersArray, [], function(dirArray) {
-    var dir = that.baseDir + '/' + that.pbDir + '/' + dirArray.join('/');
+    var dir = dirArray.join('/');
     var fname = dir + '/' + number;
-    that.fs.writeFile(fname, '', function(err) {
+    fs.writeFile(fname, '', function(err) {
       if (err) throw err;
       console.log(name + ' added with number ' + number);
     });
