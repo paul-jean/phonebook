@@ -5,14 +5,18 @@ module.exports = function(pbDir) {
 var fs = require('fs');
 
 var PhoneBook = function(pbDir) {
-  // TODO do I need to specify this.XXXX with everything like this?
-  // TODO don't need to have fs as part of PhoneBook state
-  this.baseDir = './phonebooks';
   this.pbDir = pbDir;
-  if (!fs.existsSync(this.baseDir))
-      fs.mkdirSync(this.baseDir);
-  if (!fs.existsSync(this.baseDir + '/' + this.pbDir))
-      fs.mkdirSync(this.baseDir + '/' + this.pbDir);
+  var pbDirArray = pbDir.split('/');
+  var i, pbSubDir;
+  for (i = 1; i < pbDirArray.length; i++) {
+    pbSubDir = pbDirArray.slice(0,i).join('/');
+    fs.exists(pbSubDir, function (exists) {
+      if (!exists)
+        fs.mkdir(pbSubDir, function (err) {
+          if (err) throw(err);
+        });
+    });
+  }
 };
 
 PhoneBook.prototype.strToCleanArray = function(str) {
@@ -50,7 +54,7 @@ PhoneBook.prototype.mkDirRecursive = function(dirArray, accArray, f) {
 };
 
 PhoneBook.prototype.findNumber = function(name) {
-  var dirString = this.baseDir + '/' + this.pbDir + '/' + this.strToDir(name);
+  var dirString = this.pbDir + '/' + this.strToDir(name);
   fs.readdir(dirString, function(err, files) {
     if (!files) {
       console.log('Name ' + name + ' not found in phonebook!');
@@ -61,18 +65,21 @@ PhoneBook.prototype.findNumber = function(name) {
   });
 };
 
-PhoneBook.prototype.addNumber = function(name, number) {
+PhoneBook.prototype.addNumber = function(name, number, callback) {
   var that = this;
   if (this.findNumber(name)) {
     return null;
   }
-  var lettersArray = [this.baseDir, this.pbDir].concat(this.strToCleanArray(name));
+  var lettersArray = [this.pbDir].concat(this.strToCleanArray(name));
   this.mkDirRecursive(lettersArray, [], function(dirArray) {
     var dir = dirArray.join('/');
     var fname = dir + '/' + number;
     fs.writeFile(fname, '', function(err) {
-      if (err) throw err;
-      console.log(name + ' added with number ' + number);
+      if (callback) callback(err);
+      else {
+        if (err) throw err;
+        console.log(name + ' added with number ' + number);
+      }
     });
   });
 };
