@@ -73,10 +73,12 @@ PhoneBook.prototype.rmDirRecursive = function(dirArray, levels, callback) {
 };
 
 // TODO: add callback arg
-PhoneBook.prototype.findNumber = function(name) {
+PhoneBook.prototype.findNumber = function(name, callback) {
   var dirString = this.pbDir + '/' + this.strToDir(name);
   fs.readdir(dirString, function(err, files) {
-    if (!files) {
+    if (callback) {
+      callback(err, files);
+    } else if (!files) {
       console.log('Name ' + name + ' not found in phonebook!');
       return null;
     }

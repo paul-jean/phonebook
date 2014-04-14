@@ -47,6 +47,22 @@ var create = function(argsObj) {
   });
 };
 
+var lookup = function(argsObj) {
+  var pbName = argsObj.phonebook;
+  var name = argsObj.name;
+  var pbDir = ['.', 'phonebooks', pbName].join('/');
+  var pb = new PhoneBook(pbDir);
+  pb.findNumber(name, function(err, files) {
+    if (err) throw err;
+    if (files.length < 1) {
+      console.log(name + " not found in phonebook " + pbDir);
+      return null;
+    } else {
+      console.log(name + ": " + files[0]);
+    }
+  });
+};
+
 var add = function(argsObj) {
   var name = argsObj.name,
       number = argsObj.number,
