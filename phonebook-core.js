@@ -78,12 +78,13 @@ PhoneBook.prototype.findNumber = function(name, callback) {
   fs.readdir(dirString, function(err, files) {
     if (callback) {
       callback(err, files);
-    } else if (!files) {
-      console.log('Name ' + name + ' not found in phonebook!');
-      return null;
+    } else if (files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+        console.log(files[i]);
+      }
+    } else {
+        console.log(name + ' not found in phonebook at ' + dirString);
     }
-    else if (files.length > 0)
-      console.log(files[0]);
   });
 };
 

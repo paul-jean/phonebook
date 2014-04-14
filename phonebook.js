@@ -55,10 +55,11 @@ var lookup = function(argsObj) {
   pb.findNumber(name, function(err, files) {
     if (err) throw err;
     if (files.length < 1) {
-      console.log(name + " not found in phonebook " + pbDir);
-      return null;
+      console.log(name + ' not found in phonebook at ' + pbDir);
     } else {
-      console.log(name + ": " + files[0]);
+      for (var i = 0; i < files.length; i++) {
+        console.log(name + ': ' + files[i]);
+      }
     }
   });
 };
