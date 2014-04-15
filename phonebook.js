@@ -52,14 +52,15 @@ var lookup = function(argsObj) {
   var name = argsObj.name;
   var pbDir = ['.', 'phonebooks', pbName].join('/');
   var pb = new PhoneBook(pbDir);
-  pb.findNumber(name, function(err, files) {
-    if (err) throw err;
-    if (files.length < 1) {
-      console.log(name + ' not found in phonebook at ' + pbDir);
-    } else {
-      for (var i = 0; i < files.length; i++) {
-        console.log(name + ': ' + files[i]);
+  pb.lookupName(name, function(err, file) {
+    if (err) {
+      if (err.name === 'NameNotInPhonebook') {
+        console.log(name + ' not found in phonebook at ' + pbDir);
+      } else if (err.name === 'NoFileStat') {
+        console.log(err.message);
       }
+    } else {
+      console.log(name + ': ' + file);
     }
   });
 };
