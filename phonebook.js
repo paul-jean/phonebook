@@ -52,6 +52,7 @@ var lookup = function(argsObj) {
   var name = argsObj.name;
   var pbDir = ['.', 'phonebooks', pbName].join('/');
   var pb = new PhoneBook(pbDir);
+  console.log("name = " + name);
   pb.lookupName(name, function(err, file) {
     if (err) {
       if (err.name === 'NameNotInPhonebook') {

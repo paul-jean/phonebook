@@ -1,7 +1,6 @@
 module.exports = function(pbDir) {
   return new PhoneBook(pbDir);
 };
-
 var fs = require('fs');
 
 var PhoneBook = function(pbDir) {
@@ -74,33 +73,34 @@ PhoneBook.prototype.rmDirRecursive = function(dirArray, levels, callback) {
 
 PhoneBook.prototype.lookupName = function(name, callback) {
   var dir = this.pbDir + '/' + this.strToDir(name);
+  console.log('First ' + dir);
+  var statCallback = function(filePath, fileNoPath) {
+    return function(err, stats) {
+      if (!stats) {
+        var statsErr = {
+          name: 'NoFileStat',
+          message: 'File ' + fileNoPath + ' could had an empty stat.'
+        };
+        callback(statsErr, fileNoPath);
+      } else if (stats.isFile()) {
+        callback(null, fileNoPath);
+      }
+      else if (stats.isDirectory()) {
+        PhoneBook.prototype.lookupName(filePath, callback);
+      }
+    };
+  };
   fs.exists(dir, function(exists) {
+    console.log(dir);
     if (!exists) {
       var err ={ name:'NameNotInPhonebook', message:'Name not in phonebook.' };
       callback(err, null);
     } else {
       fs.readdir(dir, function(err, files) {
         for (var i = 0; i < files.length; i++) {
-          console.log(i);
           var filePath = dir + '/' + files[i];
           var fileNoPath = files[i];
-          console.log(filePath);
-          fs.stat(filePath, function(err, stats) {
-            if (!stats) {
-              var statsErr = {
-                name: 'NoFileStat',
-                message: 'File ' + fileNoPath + ' could had an empty stat.'
-              };
-              callback(statsErr, fileNoPath);
-            } else if (stats.isFile()) {
-              console.log(fileNoPath + ' is a file.');
-              callback(null, fileNoPath);
-            }
-            else if (stats.isDirectory()) {
-              console.log(fileNoPath + ' is a dir.');
-              PhoneBook.prototype.lookupName(filePath, callback);
-            }
-          });
+          fs.stat(filePath, statCallback(filePath, fileNoPath));
         }
       });
     }
