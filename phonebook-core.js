@@ -91,13 +91,14 @@ PhoneBook.prototype.findNumber = function(name, callback) {
 PhoneBook.prototype.addNumber = function(name, number, callback) {
   var that = this;
   var lettersArray = [this.pbDir].concat(this.strToCleanArray(name));
+  var dir = lettersArray.join('/');
   var file = lettersArray.concat([number]).join('/');
-  fs.exists(file, function (exists) {
+  fs.exists(dir, function (exists) {
     if (exists) {
-      throw { name: 'DuplicateName', message: 'Error: Name already in phonebook.' };
-    }
-    else {
-      that.mkDirRecursive(lettersArray, [], function(dirArray) {
+      var err = { name: 'NameExists', message: 'Error: Name already in phonebook.' };
+      callback(err, null);
+    } else {
+      mkDirRecursive(lettersArray, [], function(dirArray) {
         var dir = dirArray.join('/');
         var fname = dir + '/' + number;
         fs.writeFile(fname, '', function(err) {

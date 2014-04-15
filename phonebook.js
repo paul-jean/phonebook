@@ -71,7 +71,9 @@ var add = function(argsObj) {
   var pbDir = ['.', 'phonebooks', phoneBookName].join('/');
   var pb = new PhoneBook(pbDir);
   pb.addNumber(name, number, function(err, fname) {
-    if (err) { throw err; }
+    if (err) {
+      console.log('Name \'' + name + '\' already in phonebook!');
+    }
     else {
       console.log('[' + name + ', ' + number + ']' + ' added to phonebook ' + phoneBookName);
       console.log('at path: ' + fname);
