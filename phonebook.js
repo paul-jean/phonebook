@@ -42,7 +42,9 @@ var create = function(argsObj) {
         message:'Phonebook ' + name + ' already exists at ' + pbDir
       };
     } else {
+      var path = ['phonebooks', name].join('/');
       var pb = PhoneBook(['phonebooks', name].join('/'));
+      console.log('New phonebook created at ' + path);
     }
   });
 };
@@ -52,16 +54,17 @@ var lookup = function(argsObj) {
   var name = argsObj.name;
   var pbDir = ['.', 'phonebooks', pbName].join('/');
   var pb = new PhoneBook(pbDir);
-  console.log("name = " + name);
   pb.lookupName(name, function(err, file) {
+    var cleanName = name.replace('$', ' ');
+    var cleanFile = file.replace('$', ' ');
     if (err) {
       if (err.name === 'NameNotInPhonebook') {
-        console.log(name + ' not found in phonebook at ' + pbDir);
+        console.log(cleanName + ' not found in phonebook at ' + pbDir);
       } else if (err.name === 'NoFileStat') {
         console.log(err.message);
       }
     } else {
-      console.log(name + ': ' + file);
+      console.log(cleanName + ': ' + cleanFile);
     }
   });
 };

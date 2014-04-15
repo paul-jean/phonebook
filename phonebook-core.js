@@ -20,8 +20,7 @@ var PhoneBook = function(pbDir) {
 
 PhoneBook.prototype.strToCleanArray = function(str) {
   var letters = str
-    .replace(' ', '')
-    .replace('-', '')
+    .replace(' ', '$')
     .toLowerCase()
     .split('');
   return letters;
@@ -50,7 +49,7 @@ PhoneBook.prototype.mkDirRecursive = function(dirArray, accArray, callback) {
       // TODO how best to specify the receiver here?
       // Why do I need to specify the receiver?
       // i.e. why can't I just say mkDirRecursive?
-      that.mkDirRecursive(dirArray, accArray, callback);
+      PhoneBook.prototype.mkDirRecursive.call(that, dirArray, accArray, callback);
   });
 };
 
@@ -72,26 +71,25 @@ PhoneBook.prototype.rmDirRecursive = function(dirArray, levels, callback) {
 };
 
 PhoneBook.prototype.lookupName = function(name, callback) {
-  var dir = this.pbDir + '/' + this.strToDir(name);
-  console.log('First ' + dir);
+  var that = this;
+  var dir = that.pbDir + '/' + that.strToDir(name);
   var statCallback = function(filePath, fileNoPath) {
     return function(err, stats) {
       if (!stats) {
         var statsErr = {
           name: 'NoFileStat',
-          message: 'File ' + fileNoPath + ' could had an empty stat.'
+          message: 'File ' + fileNoPath + ' had an empty stat.'
         };
-        callback(statsErr, fileNoPath);
+        callback(statsErr, name + ' ' + fileNoPath);
       } else if (stats.isFile()) {
-        callback(null, fileNoPath);
+        callback(null, name + ' ' + fileNoPath);
       }
       else if (stats.isDirectory()) {
-        PhoneBook.prototype.lookupName(filePath, callback);
+        PhoneBook.prototype.lookupName.call(that, name + fileNoPath, callback);
       }
     };
   };
   fs.exists(dir, function(exists) {
-    console.log(dir);
     if (!exists) {
       var err ={ name:'NameNotInPhonebook', message:'Name not in phonebook.' };
       callback(err, null);
@@ -132,7 +130,7 @@ PhoneBook.prototype.addNumber = function(name, number, callback) {
       var err = { name: 'NameExists', message: 'Error: Name already in phonebook.' };
       callback(err, null);
     } else {
-      mkDirRecursive(lettersArray, [], function(dirArray) {
+      that.mkDirRecursive(lettersArray, [], function(dirArray) {
         var dir = dirArray.join('/');
         var fname = dir + '/' + number;
         fs.writeFile(fname, '', function(err) {
