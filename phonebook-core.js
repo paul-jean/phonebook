@@ -105,17 +105,27 @@ PhoneBook.prototype.lookupName = function(name, callback) {
   });
 };
 
-PhoneBook.prototype.findNumber = function(name, callback) {
-  var dirString = this.pbDir + '/' + this.strToDir(name);
-  fs.readdir(dirString, function(err, files) {
-    if (callback) {
-      callback(err, files);
-    } else if (files.length > 0) {
-      for (var i = 0; i < files.length; i++) {
-        console.log(files[i]);
-      }
+// TODO test
+PhoneBook.prototype.removeName = function(name, callback) {
+  var that = this;
+  var dir = that.pbDir + '/' + that.strToDir(name);
+  PhoneBook.prototype.lookupName(name, function(err, file) {
+    if (err) {
+      callback(err, file);
+    } else if (!name) {
+      callback(null, name);
     } else {
-        console.log(name + ' not found in phonebook at ' + dirString);
+      fs.unlink(dir + '/' + file, function(err) {
+        fs.readdir(dir, function(err, files) {
+          // if the directory is empty, remove it and recurse up the dir tree
+          if (!files) {
+            fs.rmdir(dir, function(err) {
+              var truncatedDir = dir.substring(0, dir.length - 1);
+              PhoneBook.prototype.removeName(truncatedDir, callback);
+            });
+          }
+        });
+      });
     }
   });
 };

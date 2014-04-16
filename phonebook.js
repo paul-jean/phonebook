@@ -56,7 +56,6 @@ var lookup = function(argsObj) {
   var pb = new PhoneBook(pbDir);
   pb.lookupName(name, function(err, file) {
     var cleanName = name.replace('$', ' ');
-    var cleanFile = file.replace('$', ' ');
     if (err) {
       if (err.name === 'NameNotInPhonebook') {
         console.log(cleanName + ' not found in phonebook at ' + pbDir);
@@ -64,6 +63,7 @@ var lookup = function(argsObj) {
         console.log(err.message);
       }
     } else {
+      var cleanFile = file.replace('$', ' ');
       console.log(cleanName + ': ' + cleanFile);
     }
   });
@@ -83,6 +83,17 @@ var add = function(argsObj) {
       console.log('[' + name + ', ' + number + ']' + ' added to phonebook ' + phoneBookName);
       console.log('at path: ' + fname);
     }
+  });
+};
+
+var remove = function(argsObj) {
+  var name = argsObj.name,
+      phoneBookName = argsObj.phonebook;
+  var pbDir = ['.', 'phonebooks', phoneBookName].join('/');
+  var pb = new PhoneBook(pbDir);
+  pb.removeName(name, function(err, file) {
+    if (err) throw err;
+
   });
 };
 
