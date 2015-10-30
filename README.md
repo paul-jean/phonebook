@@ -1,3 +1,7 @@
+## Basic usage (TODO)
+
+## Example Usage
+
 ```bash
 phonebook create hsphonebook.pb
 phonebook lookup Sarah -b hsphonebook.pb # error message on no such phonebook
@@ -6,6 +10,8 @@ phonebook change 'John Michael' '234 521 2332' -b hsphonebook.pb # error message
 phonebook remove 'John Michael' -b hsphonebook.pb # error message on not exist
 phonebook reverse-lookup '312 432 5432' -b hsphonebook.pb
 ```
+
+## How it works
 
 Instantiate a `PhoneBook` object with name "pb1":
 
